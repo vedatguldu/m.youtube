@@ -1,17 +1,20 @@
 import sys
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QHBoxLayout, QVBoxLayout,
-    QStackedWidget, QLabel, QPushButton, QFrame, QSizePolicy, QMenu
+    QStackedWidget, QLabel, QPushButton, QFrame, QSizePolicy, QMenu, QMenuBar
 )
 from PySide6.QtCore import Qt, QSize
 from PySide6.QtGui import QIcon, QFont, QKeySequence, QAction
 
 from ui.components.widgets import IconButton, get_h3_font, get_body_font
 from ui.components.player import AccessibleVideoPlayer
+from core.theme import theme_manager, i18n
 
 from ui.views.explore import ExploreView
 from ui.views.downloads import DownloadsView
 from ui.views.settings import SettingsView
+from ui.views.history import HistoryView
+from ui.views.playlists import PlaylistsView
 from core.backend import backend
 
 class MainWindow(QMainWindow):
@@ -48,8 +51,58 @@ class MainWindow(QMainWindow):
         self.init_content_area()
         self.init_player_footer()
 
+        self.init_menu_bar()
+
         # Shortcuts mapping
         self.setup_shortcuts()
+
+    def init_menu_bar(self):
+        """Native OS Top Menu Bar"""
+        menubar = self.menuBar()
+
+        # File Menu
+        file_menu = menubar.addMenu(i18n.t('menu_file'))
+
+        open_action = QAction(i18n.t('menu_open_folder'), self)
+        open_action.setShortcut("Ctrl+O")
+        open_action.triggered.connect(self._open_downloads_folder)
+        file_menu.addAction(open_action)
+
+        file_menu.addSeparator()
+
+        quit_action = QAction(i18n.t('menu_quit'), self)
+        quit_action.setShortcut("Ctrl+Q")
+        quit_action.triggered.connect(self.close)
+        file_menu.addAction(quit_action)
+
+        # Playback Menu
+        playback_menu = menubar.addMenu(i18n.t('menu_playback'))
+
+        pp_action = QAction(i18n.t('menu_play_pause'), self)
+        pp_action.setShortcut("Space")
+        pp_action.triggered.connect(self.player.toggle_play)
+        playback_menu.addAction(pp_action)
+
+        mute_action = QAction(i18n.t('menu_mute'), self)
+        mute_action.setShortcut("M")
+        mute_action.triggered.connect(self.player.toggle_mute)
+        playback_menu.addAction(mute_action)
+
+        fs_action = QAction(i18n.t('menu_fullscreen'), self)
+        fs_action.setShortcut("F")
+        fs_action.triggered.connect(self.player.toggle_fullscreen)
+        playback_menu.addAction(fs_action)
+
+    def _open_downloads_folder(self):
+        from core.config import config_manager
+        import os, subprocess, platform
+        path = config_manager.get('download_dir')
+        if platform.system() == "Windows":
+            os.startfile(path)
+        elif platform.system() == "Darwin":
+            subprocess.Popen(["open", path])
+        else:
+            subprocess.Popen(["xdg-open", path])
 
     def init_header(self):
         """Header (56px) - Logo, Search, Settings"""
@@ -79,6 +132,8 @@ class MainWindow(QMainWindow):
         self.btn_settings = IconButton("⚙️", "Settings Menu")
         self.btn_account = IconButton("👤", "Account Binding")
 
+        self.btn_theme.clicked.connect(self._toggle_theme)
+
         h_layout.addWidget(logo_label)
         h_layout.addWidget(spacer)
         h_layout.addWidget(self.btn_theme)
@@ -86,6 +141,9 @@ class MainWindow(QMainWindow):
         h_layout.addWidget(self.btn_account)
 
         self.main_layout.addWidget(self.header)
+
+    def _toggle_theme(self):
+        theme_manager.toggle()
 
     def init_sidebar(self):
         """Sidebar (240px) - Main Navigation"""
@@ -126,10 +184,10 @@ class MainWindow(QMainWindow):
         # Nav Items
         self.nav_buttons = {}
         nav_items = [
-            ("explore", "🔍 Explore (Alt+1)"),
-            ("downloads", "⬇️ Downloads (Alt+2)"),
-            ("playlists", "📋 Playlists (Alt+3)"),
-            ("history", "⏰ History (Alt+4)")
+            ("explore", i18n.t('explore') + " (Alt+1)"),
+            ("downloads", i18n.t('downloads') + " (Alt+2)"),
+            ("playlists", i18n.t('playlists') + " (Alt+3)"),
+            ("history", i18n.t('history') + " (Alt+4)")
         ]
 
         for key, text in nav_items:
@@ -156,16 +214,8 @@ class MainWindow(QMainWindow):
         }
 
         self.pages["settings"] = SettingsView(self)
-
-        # Add placeholders for unfinished views
-        for key in ["playlists", "history"]:
-            page = QWidget()
-            layout = QVBoxLayout(page)
-            label = QLabel(f"{key.capitalize()} View (Coming Soon)")
-            label.setAlignment(Qt.AlignCenter)
-            label.setFont(get_h3_font())
-            layout.addWidget(label)
-            self.pages[key] = page
+        self.pages["history"] = HistoryView(self)
+        self.pages["playlists"] = PlaylistsView(self)
 
         for key, page in self.pages.items():
             self.content_stack.addWidget(page)
@@ -205,6 +255,12 @@ class MainWindow(QMainWindow):
             btn.setChecked(k == tab_key)
 
         if tab_key in self.pages:
+            # Trigger refresh for dynamic lists if they have a refresh method
+            if hasattr(self.pages[tab_key], 'refresh'):
+                self.pages[tab_key].refresh()
+            elif hasattr(self.pages[tab_key], 'refresh_playlists'):
+                self.pages[tab_key].refresh_playlists()
+
             self.content_stack.setCurrentWidget(self.pages[tab_key])
 
     def toggle_player_visibility(self, visible):
@@ -216,6 +272,8 @@ class MainWindow(QMainWindow):
 
     def setup_shortcuts(self):
         """Global Keyboard Shortcuts (WCAG A compatible)"""
+        # The Ctrl+O and Ctrl+Q are handled by QMenuBar above.
+        # We only need to setup the Alt+ navigation shortcuts.
         from ui.components.shortcuts import setup_global_shortcuts
         setup_global_shortcuts(self)
 

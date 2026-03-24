@@ -4,6 +4,8 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt, QSize
 from ui.components.widgets import FilledButton, VideoCard, get_h3_font
 from core.backend import backend
+from core.theme import i18n
+from core.config import config_manager
 
 class ExploreView(QWidget):
     """
@@ -158,6 +160,14 @@ class ExploreView(QWidget):
 
         menu.addAction(play_action)
         menu.addAction(download_action)
+
+        # Playlists Submenu
+        playlists_menu = menu.addMenu(i18n.t('add_to_playlist'))
+        playlists = config_manager.get_playlists()
+        for p_name in playlists.keys():
+            action = playlists_menu.addAction(p_name)
+            # Use default args lambda trick to bind the variable correctly in loop
+            action.triggered.connect(lambda checked=False, name=p_name: config_manager.add_to_playlist(name, video_data))
 
         menu.exec_(pos)
 
