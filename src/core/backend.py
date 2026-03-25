@@ -60,12 +60,13 @@ class YtDlpBackend(QObject):
             return
 
         self.search_started.emit()
-        self._search_thread = threading.Thread(target=self._search_worker, args=(query, region, limit))
+        self._search_thread = threading.Thread(target=self._search_worker, args=(query, region, language, limit))
         self._search_thread.start()
 
-    def _search_worker(self, query, region, limit):
+    def _search_worker(self, query, region, language, limit):
         opts = self._get_base_ydl_opts()
-        opts['extractor_args'] = {'youtube': {'gl': [region]}} # Tell yt-dlp to use this region
+        # Ensure youtube results align with the chosen region and language
+        opts['extractor_args'] = {'youtube': {'gl': [region], 'hl': [language]}}
         # Ensure we only fetch max limit results using ytsearch format
         search_query = f"ytsearch{limit}:{query}"
 

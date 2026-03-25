@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import QPushButton, QSlider, QFrame, QVBoxLayout, QLabel, QHBoxLayout
-from PySide6.QtCore import Qt, QSize, Signal
-from PySide6.QtGui import QCursor, QFont, QAccessible
+from PySide6.QtCore import Qt, QSize, Signal, QByteArray
+from PySide6.QtGui import QCursor, QFont, QAccessible, QPixmap
+from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
 
 # Brand Colors (Material 3)
 BRAND_RED = "#FF0000"
@@ -189,7 +190,13 @@ class VideoCard(QFrame):
         self.thumb_label.setFixedSize(240, 135)
         self.thumb_label.setStyleSheet("background-color: #E0E0E0; border-radius: 8px;")
         self.thumb_label.setAlignment(Qt.AlignCenter)
-        self.thumb_label.setText("Thumbnail Loading...")
+        self.thumb_label.setText("Loading...")
+        self.thumb_label.setScaledContents(True)
+
+        # Async image load
+        self._nam = QNetworkAccessManager(self)
+        self._nam.finished.connect(self._on_thumbnail_loaded)
+        self._load_thumbnail()
 
         # Title
         self.title_label = QLabel(title)
@@ -219,6 +226,26 @@ class VideoCard(QFrame):
                 border: 2px dashed #2196F3;
             }
         """)
+
+    def _load_thumbnail(self):
+        thumb_url = self.video_data.get('best_thumbnail')
+        if thumb_url:
+            from PySide6.QtCore import QUrl
+            req = QNetworkRequest(QUrl(thumb_url))
+            self._nam.get(req)
+        else:
+            self.thumb_label.setText("No Image")
+
+    def _on_thumbnail_loaded(self, reply: QNetworkReply):
+        if reply.error() == QNetworkReply.NoError:
+            data = reply.readAll()
+            pixmap = QPixmap()
+            if pixmap.loadFromData(data):
+                self.thumb_label.setPixmap(pixmap)
+                self.thumb_label.setText("") # Clear text
+        else:
+            self.thumb_label.setText("Failed")
+        reply.deleteLater()
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:

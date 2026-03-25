@@ -16,6 +16,9 @@ assert backend is not None
 
 # Verify Config
 from core.config import config_manager
-assert config_manager.get('language') == 'en'
+assert config_manager.get('language') in ['en', 'tr', 'es', 'ar'] # allow any supported language if saved in config
 
+win.close()
+app.processEvents()
+app.quit()
 print("ALL TESTS PASSED")

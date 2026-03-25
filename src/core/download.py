@@ -23,6 +23,7 @@ class DownloadManager(QObject):
         self._active_downloads = {} # video_id -> thread
         self._queue = []
         self._max_concurrent = config_manager.get('max_concurrent_downloads', 3)
+        self._lock = threading.Lock() # Protect shared structures
 
         # Timer to check queue
         self._queue_timer = QTimer(self)
@@ -30,29 +31,32 @@ class DownloadManager(QObject):
         self._queue_timer.start(1000)
 
     def download_video(self, video_id, video_url, title):
-        if video_id in self._active_downloads:
-            logger.warning(f"Download for {video_id} already in progress.")
-            return
+        with self._lock:
+            if video_id in self._active_downloads:
+                logger.warning(f"Download for {video_id} already in progress.")
+                return
 
-        # Add to queue
-        self._queue.append((video_id, video_url, title))
+            # Add to queue
+            self._queue.append((video_id, video_url, title))
+
         self._process_queue()
 
     def _process_queue(self):
-        if len(self._active_downloads) >= self._max_concurrent:
-            return
+        with self._lock:
+            if len(self._active_downloads) >= self._max_concurrent:
+                return
 
-        if not self._queue:
-            return
+            if not self._queue:
+                return
 
-        video_id, video_url, title = self._queue.pop(0)
+            video_id, video_url, title = self._queue.pop(0)
 
-        thread = threading.Thread(
-            target=self._download_worker,
-            args=(video_id, video_url, title)
-        )
-        self._active_downloads[video_id] = thread
-        thread.start()
+            thread = threading.Thread(
+                target=self._download_worker,
+                args=(video_id, video_url, title)
+            )
+            self._active_downloads[video_id] = thread
+            thread.start()
 
     def _download_worker(self, video_id, video_url, title):
         download_dir = config_manager.get('download_dir')
@@ -132,8 +136,12 @@ class DownloadManager(QObject):
             self.download_error.emit(video_id, str(e))
 
         finally:
-            if video_id in self._active_downloads:
-                del self._active_downloads[video_id]
-            self._process_queue() # Try to start next
+            with self._lock:
+                if video_id in self._active_downloads:
+                    del self._active_downloads[video_id]
+            # Try to start next on main thread (via signal or direct if safe)
+            # Since QTimer runs it, we can also just wait for the next tick,
+            # but we can safely call it directly too.
+            self._process_queue()
 
 download_manager = DownloadManager()

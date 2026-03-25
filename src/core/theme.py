@@ -70,8 +70,8 @@ class LocaleManager(QObject):
             logger.error(f"Failed to load language file: {e}")
             self.dict = {}
 
-    def t(self, key, **kwargs):
-        text = self.dict.get(key, key)
+    def t(self, key, default=None, **kwargs):
+        text = self.dict.get(key, default if default is not None else key)
         if kwargs:
             try:
                 return text.format(**kwargs)

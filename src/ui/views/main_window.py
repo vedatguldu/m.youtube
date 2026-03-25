@@ -79,7 +79,7 @@ class MainWindow(QMainWindow):
         playback_menu = menubar.addMenu(i18n.t('menu_playback'))
 
         pp_action = QAction(i18n.t('menu_play_pause'), self)
-        pp_action.setShortcut("Space")
+        pp_action.setShortcut("Ctrl+P") # Avoid blocking Space key for text input
         pp_action.triggered.connect(self.player.toggle_play)
         playback_menu.addAction(pp_action)
 

@@ -200,7 +200,8 @@ class AccessibleVideoPlayer(QWidget):
     def _on_error(self):
         err = self.player.error()
         if err != QMediaPlayer.NoError:
-            self.title_label.setText("Video playback error! It may be restricted or unavailable.")
+            from core.theme import i18n
+            self.title_label.setText(i18n.t('player_error', default="Video playback error!"))
             self.title_label.setStyleSheet("color: #FF0000; font-weight: bold;")
             logger.error(f"Player Error: {self.player.errorString()}")
             self.stop()

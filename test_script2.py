@@ -16,4 +16,7 @@ assert i18n.t('explore') == '🔍 Explore'
 i18n.load_language('tr')
 assert i18n.t('explore') == '🔍 Keşfet'
 
+win.close()
+app.processEvents()
+app.quit()
 print("ALL NEW TESTS PASSED")

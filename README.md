@@ -45,10 +45,20 @@ pip install -r requirements.txt
 ```
 
 ### 2. Uygulamayı Başlatın (Test İçin)
+
+**Mac / Linux / Bash İçin:**
 ```bash
 export PYTHONPATH=$(pwd)/src
 python src/main.py
 ```
+
+**Windows PowerShell İçin:**
+```powershell
+$env:PYTHONPATH = (Join-Path (Get-Location) 'src')
+python src/main.py
+```
+
+*Not: Uygulamayı komut satırından derlemek ve testlerin düzgün çalışıp çalışmadığını uçtan uca doğrulamak için `python verify_all.py` komutunu da kullanabilirsiniz.*
 
 ### 3. Paketleme / Derleme (Tek Dosya Haline Getirme)
 Eğer dağıtıma hazır bir masaüstü uygulaması yaratmak isterseniz:

@@ -49,5 +49,7 @@
     "playlists_create": "Create",
     "playlists_empty": "No playlists found. Create one above.",
     "video_remove": "Remove",
-    "play_video": "Play Video"
+    "play_video": "Play Video",
+    "restart_required": "Please restart the app to fully apply language changes.",
+    "player_error": "Video playback error! It may be restricted or unavailable."
 }

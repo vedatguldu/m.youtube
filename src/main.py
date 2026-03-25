@@ -1,4 +1,5 @@
 import sys
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication
 from ui.views.main_window import MainWindow
 from core.config import logger
@@ -58,5 +59,4 @@ def main():
     sys.exit(app.exec())
 
 if __name__ == "__main__":
-    from PySide6.QtCore import Qt
     main()
