@@ -1,26 +1,32 @@
 # YouTube Desktop App PyInstaller Build Script
 import PyInstaller.__main__
 import os
+import platform
 
 print("Starting build process for YouTube Desktop...")
 
-# Define output path and paths to include
 project_root = os.path.dirname(os.path.abspath(__file__))
 main_script = os.path.join(project_root, "src", "main.py")
+locales_dir = os.path.join(project_root, "src", "locales")
+
+# Handle OS specific path separator for PyInstaller data
+separator = ';' if platform.system() == "Windows" else ':'
 
 PyInstaller.__main__.run([
     main_script,
     '--name=YouTubeDesktop',
-    '--windowed',         # No console window (macOS/Windows)
-    '--noconfirm',        # Overwrite existing build
-    '--clean',            # Clean PyInstaller cache
+    '--windowed',         # No console window
+    '--onefile',          # Bundle everything into a SINGLE executable! (Solves the missing file issue)
+    '--noconfirm',
+    '--clean',
     '--log-level=WARN',
 
-    # We include our sources inside the executable to avoid missing paths
+    # Include all our custom Python modules
     f'--paths={os.path.join(project_root, "src")}',
 
-    # Optionally, include any assets if we had icons
-    # '--add-data=src/assets:assets',
+    # Include the language dictionary JSON files!
+    f'--add-data={locales_dir}{separator}locales',
 ])
 
-print("Build completed! Check the 'dist' folder.")
+print("\n\n=== BUILD COMPLETED ===")
+print(f"You can find the standalone application inside the 'dist/' folder.")

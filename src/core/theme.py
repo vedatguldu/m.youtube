@@ -1,8 +1,19 @@
 import os
+import sys
 import json
 import logging
 from core.config import config_manager
 from PySide6.QtCore import QObject, Signal
+
+def get_resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        # Normal execution
+        base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base_path, relative_path)
 
 logger = logging.getLogger("YouTubeDesktop")
 
@@ -40,9 +51,8 @@ class LocaleManager(QObject):
         self.load_language(self.current_lang)
 
     def load_language(self, lang_code):
-        # Fallback to English if not found
-        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        locales_dir = os.path.join(base_dir, "locales")
+        # Use our helper for robust path finding
+        locales_dir = get_resource_path("locales")
         lang_path = os.path.join(locales_dir, f"{lang_code}.json")
 
         if not os.path.exists(lang_path):

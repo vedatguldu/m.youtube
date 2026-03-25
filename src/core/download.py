@@ -87,14 +87,16 @@ class DownloadManager(QObject):
             elif d['status'] == 'error':
                 self.progress_updated.emit(video_id, 0.0, "Error during download")
 
-        # Base yt-dlp options (we want best quality for downloading)
+        # Base yt-dlp options
+        # We use a single combined format (like mp4) to avoid requiring external 'ffmpeg'
+        # If the user has ffmpeg installed, they could use 'bestvideo+bestaudio/best'.
+        # Since we are making a standalone app, we aim for maximum compatibility.
         opts = {
-            'format': 'bestvideo+bestaudio/best',
+            'format': 'best[ext=mp4]/best',
             'outtmpl': output_template,
             'progress_hooks': [progress_hook],
             'quiet': True,
-            'no_warnings': True,
-            'merge_output_format': 'mkv', # Ensures high quality combine
+            'no_warnings': True
         }
 
         # Auth check
