@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QScrollArea, QGridLayout, QLabel, QFrame
+    QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QScrollArea, QGridLayout, QLabel, QFrame, QComboBox
 )
 from PySide6.QtCore import Qt, QSize
 from ui.components.widgets import FilledButton, VideoCard, get_h3_font
@@ -43,10 +43,17 @@ class ExploreView(QWidget):
         self.search_input.returnPressed.connect(self.perform_search)
         self.search_input.setAccessibleName("Search Videos Input")
 
-        self.search_btn = FilledButton("🔍 Search")
+        self.search_btn = FilledButton(i18n.t('search_btn', default="🔍 Search"))
         self.search_btn.clicked.connect(self.perform_search)
 
+        # Region Filter
+        self.region_combo = QComboBox()
+        self.region_combo.setMinimumHeight(40)
+        self.region_combo.addItems(["US", "TR", "GB", "DE", "ES", "SA", "IN"])
+        self.region_combo.setCurrentText(config_manager.get('region', 'US'))
+
         search_layout.addWidget(self.search_input, stretch=1)
+        search_layout.addWidget(self.region_combo)
         search_layout.addWidget(self.search_btn)
 
         # Status Label
@@ -79,7 +86,10 @@ class ExploreView(QWidget):
         if not query:
             return
 
-        backend.search_videos(query, limit=50)
+        region = self.region_combo.currentText()
+        config_manager.set('region', region)
+
+        backend.search_videos(query, region=region, limit=50)
 
     def _on_search_started(self):
         self.status_label.setText("Searching... Please wait.")
@@ -99,6 +109,7 @@ class ExploreView(QWidget):
         for video in results:
             card = VideoCard(video)
             card.clicked.connect(self._on_card_clicked)
+            card.right_clicked.connect(self._show_context_menu)
             self.grid_layout.addWidget(card, row, col)
 
             col += 1
@@ -132,19 +143,6 @@ class ExploreView(QWidget):
             'url': video_data.get('url'),
             'type': 'watch'
         })
-
-    def contextMenuEvent(self, event):
-        """Right-click context menu logic for video cards"""
-        # We need to find if the right-click was over a video card
-        child = self.childAt(event.pos())
-
-        # Walk up to find the VideoCard
-        while child:
-            from ui.components.widgets import VideoCard
-            if isinstance(child, VideoCard):
-                self._show_context_menu(child.video_data, event.globalPos())
-                return
-            child = child.parentWidget()
 
     def _show_context_menu(self, video_data, pos):
         from PySide6.QtWidgets import QMenu

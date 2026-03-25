@@ -1,9 +1,10 @@
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QLabel, QPushButton, QHBoxLayout
+    QWidget, QVBoxLayout, QLabel, QPushButton, QHBoxLayout, QComboBox, QFileDialog
 )
 from PySide6.QtCore import Qt
 from core.config import config_manager
 from core.backend import backend
+from core.theme import i18n
 from ui.components.widgets import get_h3_font, get_body_font, FilledButton, OutlinedButton
 
 class SettingsView(QWidget):
@@ -40,15 +41,51 @@ class SettingsView(QWidget):
         layout.addWidget(self.btn_login)
 
         # --- Paths & General ---
-        gen_title = QLabel("General")
+        gen_title = QLabel(i18n.t('general'))
         gen_title.setFont(get_h3_font())
 
-        down_dir = config_manager.get('download_dir')
-        down_label = QLabel(f"Download Directory: {down_dir}")
-        down_label.setFont(get_body_font())
+        down_layout = QHBoxLayout()
+        self.down_label = QLabel(f"{i18n.t('download_dir')}: {config_manager.get('download_dir')}")
+        self.down_label.setFont(get_body_font())
+
+        btn_change_dir = OutlinedButton("📂")
+        btn_change_dir.setFixedWidth(50)
+        btn_change_dir.clicked.connect(self.change_directory)
+
+        down_layout.addWidget(self.down_label, stretch=1)
+        down_layout.addWidget(btn_change_dir)
+
+        # --- Language ---
+        lang_layout = QHBoxLayout()
+        lang_label = QLabel(i18n.t('language'))
+        lang_label.setFont(get_body_font())
+
+        self.lang_combo = QComboBox()
+        self.lang_combo.addItem("English", "en")
+        self.lang_combo.addItem("Türkçe", "tr")
+        self.lang_combo.addItem("Español", "es")
+        self.lang_combo.addItem("العربية", "ar")
+
+        # Set current
+        current_lang = config_manager.get('language')
+        index = self.lang_combo.findData(current_lang)
+        if index >= 0:
+            self.lang_combo.setCurrentIndex(index)
+
+        self.lang_combo.currentIndexChanged.connect(self.change_language)
+
+        lang_layout.addWidget(lang_label, stretch=1)
+        lang_layout.addWidget(self.lang_combo)
 
         layout.addWidget(gen_title)
-        layout.addWidget(down_label)
+        layout.addLayout(down_layout)
+        layout.addLayout(lang_layout)
+
+        # Notification label
+        self.restart_lbl = QLabel(i18n.t('restart_required', default="Please restart the app to fully apply language changes."))
+        self.restart_lbl.setStyleSheet("color: #FF9800;")
+        self.restart_lbl.hide()
+        layout.addWidget(self.restart_lbl)
 
         layout.addStretch()
 
@@ -78,3 +115,15 @@ class SettingsView(QWidget):
         self.btn_login.setEnabled(True)
         self.auth_status.setText(f"Authentication failed: {err_msg}")
         self.auth_status.setStyleSheet("color: #F44336;")
+
+    def change_directory(self):
+        new_dir = QFileDialog.getExistingDirectory(self, "Select Download Directory")
+        if new_dir:
+            config_manager.set('download_dir', new_dir)
+            self.down_label.setText(f"{i18n.t('download_dir')}: {new_dir}")
+
+    def change_language(self):
+        lang_code = self.lang_combo.currentData()
+        if lang_code != config_manager.get('language'):
+            i18n.load_language(lang_code)
+            self.restart_lbl.show()

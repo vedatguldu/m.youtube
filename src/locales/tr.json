@@ -49,5 +49,6 @@
     "playlists_create": "Oluştur",
     "playlists_empty": "Çalma listesi bulunamadı. Yukarıdan oluşturabilirsiniz.",
     "video_remove": "Kaldır",
-    "play_video": "Videoyu Oynat"
+    "play_video": "Videoyu Oynat",
+    "restart_required": "Dil değişikliklerinin tam olarak uygulanması için lütfen uygulamayı yeniden başlatın."
 }

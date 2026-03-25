@@ -105,6 +105,7 @@ class AccessibleVideoPlayer(QWidget):
         self.player.positionChanged.connect(self._on_position_changed)
         self.player.durationChanged.connect(self._on_duration_changed)
         self.player.mediaStatusChanged.connect(self._on_media_status_changed)
+        self.player.errorChanged.connect(self._on_error)
 
     # --- API ---
     def load_stream(self, stream_url, title="Unknown Video"):
@@ -195,6 +196,14 @@ class AccessibleVideoPlayer(QWidget):
         if status == QMediaPlayer.EndOfMedia:
             self.stop()
             self.play_btn.setText("▶")
+
+    def _on_error(self):
+        err = self.player.error()
+        if err != QMediaPlayer.NoError:
+            self.title_label.setText("Video playback error! It may be restricted or unavailable.")
+            self.title_label.setStyleSheet("color: #FF0000; font-weight: bold;")
+            logger.error(f"Player Error: {self.player.errorString()}")
+            self.stop()
 
     # --- Keyboard Controls ---
     def keyPressEvent(self, event):

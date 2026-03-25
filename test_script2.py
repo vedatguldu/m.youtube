@@ -11,6 +11,7 @@ assert "playlists" in win.pages
 
 # Verify translation dictionary works
 from core.theme import i18n
+i18n.load_language('en')
 assert i18n.t('explore') == '🔍 Explore'
 i18n.load_language('tr')
 assert i18n.t('explore') == '🔍 Keşfet'

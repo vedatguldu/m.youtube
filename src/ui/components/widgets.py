@@ -165,6 +165,7 @@ class VideoCard(QFrame):
     """A card displaying a video thumbnail, title, and channel."""
 
     clicked = Signal(dict)
+    right_clicked = Signal(dict, object) # dict: video_data, object: global_pos
 
     def __init__(self, video_data, parent=None):
         super().__init__(parent)
@@ -222,6 +223,8 @@ class VideoCard(QFrame):
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
             self.clicked.emit(self.video_data)
+        elif event.button() == Qt.RightButton:
+            self.right_clicked.emit(self.video_data, event.globalPos())
 
     def keyPressEvent(self, event):
         if event.key() in (Qt.Key_Enter, Qt.Key_Return, Qt.Key_Space):
