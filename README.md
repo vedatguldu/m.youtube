@@ -1,73 +1,74 @@
-# YouTube Masaüstü - Erişilebilir Oynatıcı (v1.0)
-*YouTube Desktop - Accessible Player*
+<h1 align="center">YouTube Masaüstü Oynatıcı (v1.0)</h1>
 
-YouTube videolarını aramak, canlı akış (streaming) olarak izlemek, çalma listeleri oluşturmak ve yüksek kalitede indirebilmek için tasarlanmış, **WCAG 2.1 AA/AAA standartlarında tam erişilebilir** masaüstü uygulamasıdır.
+<p align="center">
+  <b>YouTube videolarını aramak, canlı izlemek (streaming), yüksek kalitede indirmek ve hesaplarınızı yönetmek için tasarlanmış, WCAG 2.1 standartlarına uygun masaüstü uygulamasıdır.</b>
+</p>
 
-## 🌟 Özellikler (Features)
+---
+
+## 🌟 Öne Çıkan Özellikler
 
 1. **Arama ve Keşfetme:**
-   - Videoları hızlıca arayın, ızgara (grid) formatında görüntüleyin.
-   - Sağ tıklayarak oynatın veya doğrudan indirin.
+   - Videoları hızlıca arayın, listeleyin.
+   - Bağlam (sağ tık) menüsüyle anında oynatın veya bilgisayarınıza indirin.
 2. **Erişilebilir Medya Oynatıcı:**
-   - 200ms gecikme önleyici (debounce) sistemli ses kontrolü.
-   - Tamamen klavye kontrollü (`Space`, `F`, `M`, ok tuşları).
-   - NVDA ve JAWS ekran okuyucular için `%100` etiketlendirilmiş altyapı.
-3. **İndirme Yöneticisi:**
-   - Arka planda asenkron çoklu indirme kuyruğu.
-   - En iyi kalite (1080p, 4K vb.) formatların `mkv` olarak sorunsuz birleşimi.
+   - Hızlı ses değişimlerinde dalgalanmayı önleyen (200ms debounce) özel altyapı.
+   - `%100` klavye kontrolü: `Space` (Başlat/Durdur), `Ok Tuşları` (Sarma/Ses), `F` (Tam Ekran), `M` (Sessiz).
+   - Ekran okuyucular (NVDA, JAWS vb.) için her bir buton ve öğe özel olarak (aria-label mantığıyla) etiketlenmiştir.
+3. **Akıllı İndirme Yöneticisi:**
+   - Videoları arka planda (kuyruklu sistem) indirin, arayüz asla donmasın.
+   - En iyi ses ve görüntüyü otomatik çekip `mkv` formatında birleştirir.
 4. **Çalma Listeleri ve İzleme Geçmişi:**
-   - Kendi yerel çalma listelerinizi oluşturun ve yönetin.
-   - İzlediğiniz veya indirdiğiniz tüm videoları anında tekrar oynatın.
+   - İzlediğiniz her videonun kaydı tutulur (Yerel, sadece sizin bilgisayarınızda).
+   - Sınırsız sayıda yerel çalma listesi oluşturabilir, videolarınızı kategorize edebilirsiniz.
 5. **Google/YouTube Hesap Doğrulaması:**
-   - Karmaşık çerez (cookie) bulma işlemlerine gerek kalmadan, **OAuth2 Device Flow** (Cihaz Onaylama Akışı) sayesinde tek tıklamayla güvenli giriş.
-   - Bu sayede YouTube Premium ve Katıl (Members-only) videolarına tam erişim.
-6. **Tema ve Dil:**
-   - `İngilizce`, `Türkçe`, `İspanyolca` ve `Arapça` tam destek (Menüden ve Ayarlardan değiştirilebilir).
-   - `Karanlık` (Dark) ve `Aydınlık` (Light) tema arasında tek tuşla (🌙) anında geçiş.
+   - Çerez (cookie) bulma işlemlerine gerek yok! Ayarlar kısmından tek tuşla **"Cihaz Onaylama Akışı (OAuth2)"** sayesinde güvenle YouTube hesabınıza bağlanın.
+   - Bu sayede **YouTube Premium** veya abone olduğunuz **"Katıl" (Members-only)** videolarına da doğrudan erişebilirsiniz.
+6. **Karanlık Tema (Dark Mode) ve Çoklu Dil:**
+   - `İngilizce`, `Türkçe`, `İspanyolca` ve `Arapça` dil destekleri eklidir.
+   - Sağ üstteki `🌙` ikonuna basarak anında Karanlık temaya geçiş yapın.
 
-## 🛠 Mimari & Teknoloji (Tech Stack)
+## 🛠 Kullanılan Teknolojiler
 
-*   **Arayüz:** `PySide6` (Qt for Python)
-*   **Ağ & Veri Çekme:** `yt-dlp` (Asenkron QThread mimarisi ile donmaları engeller)
-*   **Multimedya:** `QMediaPlayer` ve `QAudioOutput` (720p birleşik format destekli optimize akış)
-*   **Paketleme:** `PyInstaller` (Tam bağımsız işletim sistemi dosyaları için)
+*   **Arayüz (GUI):** `PySide6` (Qt Framework'ün en modern Python sürümü).
+*   **Ağ & Medya İndirme:** `yt-dlp` (Tamamen asenkron QThread mimarisi ile sisteme yük bindirmez).
+*   **Oynatıcı Motoru:** Native `QMediaPlayer` ve `QAudioOutput`.
 
-## ⌨️ Klavye Kısayolları (Shortcuts)
+## 🚀 Kurulum ve Çalıştırma
 
-| Kısayol | İşlev |
-| :--- | :--- |
-| `Alt+1` | Keşfet sekmesine git |
-| `Alt+2` | İndirmeler sekmesine git |
-| `Alt+3` | Çalma Listeleri sekmesine git |
-| `Alt+4` | Geçmiş sekmesine git |
-| `Ctrl+F` | Arama çubuğuna odaklan |
-| `Ctrl+O` | İndirme klasörünü aç |
-| `Ctrl+Q` | Uygulamadan çık |
-| `Space` | Oynat / Duraklat (Oynatıcı aktifken) |
-| `F` | Tam ekrana geç / çık |
-| `M` | Sesi kapat / aç (Mute) |
+Uygulamayı kendi bilgisayarınızda derleyip bir `.exe` (veya `.app`) haline getirmek oldukça kolaydır.
 
-## 🚀 Kurulum ve Çalıştırma (Installation & Build)
-
-Bu uygulama herhangi bir Python bilgisi veya kurulumu gerektirmeden çalıştırılabilir olacak şekilde tasarlanmıştır.
-
-### Geliştirici Ortamı (Developer Setup)
-Eğer kodu doğrudan çalıştırmak istiyorsanız:
+### 1. Gereksinimleri Yükleyin
+Eğer kodu doğrudan çalıştırmak veya derlemek istiyorsanız sisteminizde Python 3.10+ kurulu olmalıdır.
 ```bash
-# Bağımlılıkları yükleyin
 pip install -r requirements.txt
+```
 
-# Uygulamayı başlatın
+### 2. Uygulamayı Başlatın (Test İçin)
+```bash
 export PYTHONPATH=$(pwd)/src
 python src/main.py
 ```
 
-### Derleme (Building .exe / .app)
-Kullanıcılara dağıtmak üzere tek bir çalıştırılabilir dosya üretmek için:
+### 3. Paketleme / Derleme (Tek Dosya Haline Getirme)
+Eğer dağıtıma hazır bir masaüstü uygulaması yaratmak isterseniz:
 ```bash
 python build.py
 ```
-Bu işlem sonunda `dist/` klasörü içerisinde `YouTubeDesktop` isimli çalıştırılabilir native uygulamanız oluşacaktır.
+*Not: İşlem bittiğinde `dist/` klasörü içinde **YouTubeDesktop** isimli tıklayıp çalıştırabileceğiniz uygulamanız hazır olacaktır.*
 
-## 🤝 Faz 2 (Gelecek Özellikler)
-İlerleyen güncellemelerde "Birlikte İzle ve Sesli Sohbet (Watch Party & Voice Chat)" özellikleri eklenecektir.
+## ⚖️ Lisans ve Kullanım Koşulları (GPLv3)
+
+**Telif Hakkı (C) 2026 Vedat Güldü**
+
+Bu uygulama ve içerdiği tüm kaynak kodlar **GNU General Public License v3.0 (GPLv3)** lisansı ile korunmaktadır.
+
+Bu lisans uyarınca:
+*   Kodu dilediğiniz gibi kullanabilir, değiştirebilir ve geliştirebilirsiniz.
+*   Ancak, bu kodu kullanarak geliştireceğiniz yeni projeleri de **kesinlikle aynı açık kaynak lisansı (GPLv3) ile ücretsiz olarak yayınlamak zorundasınız.**
+*   Bu projenin kaynak kodlarını, yazarın (Vedat Güldü) açık ticari izni olmadan **kapalı kaynaklı (ticari/ücretli) bir ürün haline getiremezsiniz.**
+
+Ticari kullanım, Pro sürüm hakları veya özel lisans anlaşmaları için lütfen **Vedat Güldü** ile iletişime geçin. Tam lisans metni için projedeki `LICENSE` dosyasına bakabilirsiniz.
+
+---
+*Faz 2'de (v2.0) "Birlikte İzle ve Sesli Sohbet (Watch Party)" özellikleri planlanmaktadır.*
